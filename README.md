@@ -2,7 +2,7 @@
 
 # Documentations de l'api
 
-<p>Cette api réalisé avec laravel permet la gestion d'utilisateurs, d'événments, de catégories d'événements et surtout de réservation avec une sécurité assez conséquente pour toute requete.</p>
+<p>Cette API développée avec Laravel permet de gérer les utilisateurs, les événements, les catégories d'événements, ainsi que les réservations, tout en offrant un haut niveau de sécurité pour chaque requête.</p>
 
 ## Authentification
 ### Inscription
