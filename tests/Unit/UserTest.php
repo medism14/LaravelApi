@@ -137,7 +137,7 @@ class UserTest extends TestCase
         // Envoi d'une requête pour permettre à un utilisateur de passer administrateur
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $token,
-        ])->putJson('/api/users/makeAdmin/4f3a1b2c5d6e7f8a9b0c1d2e3f4a5b6c/' . $user->id);
+        ])->putJson('/api/makeAdmin/4f3a1b2c5d6e7f8a9b0c1d2e3f4a5b6c/' . $user->id);
 
         // Vérifier si la réponse correspond à nos exigences
         $response->assertStatus(200)

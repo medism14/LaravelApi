@@ -30,7 +30,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/events/{id}', [EventController::class, 'update']);
 
     // Routes pour les réservations
-    Route::get('/reservations', [ReservationController::class, 'index']);
     Route::post('/reservations', [ReservationController::class, 'create']);
     Route::get('/reservations/{id}', [ReservationController::class, 'show']);
     Route::put('/reservations/{id}', [ReservationController::class, 'update']);
@@ -41,13 +40,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/users/{id}', [UserController::class, 'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
         Route::get('/users/{id}', [UserController::class, 'show']);
-        Route::put('/users/makeAdmin/{key}/{id?}', [UserController::class, 'makeAdmin']);
+        Route::put('/makeAdmin/{key}/{id?}', [UserController::class, 'makeAdmin']);
     });
 
     // Middleware d'administrateur appliqué à ce groupe
     Route::middleware(AdminMiddleware::class)->group(function () {
         // Routes pour les utilisateurs
         Route::get('/users', [UserController::class, 'index']);
+
+        // Routes pour les réservations
+        Route::get('/reservations', [ReservationController::class, 'index']);
 
         // Routes pour les catégories
         Route::post('/categories', [CategoryController::class, 'create']);

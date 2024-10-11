@@ -16,31 +16,31 @@ class EventController extends Controller
     {
         try {
             // Récupération des événements
-            $query = Event::query();
+            $events = Event::query();
 
             // Vérification de s'il y'a une recherche et application de la requête
             if ($search = $request->input('search')) {
-                $query->whereRaw('LOWER(title) LIKE ?', ['%' . strtolower($search) . '%']);
+                $events->whereRaw('LOWER(title) LIKE ?', ['%' . strtolower($search) . '%']);
             }
 
             // Vérification de s'il y'a une date de début et application de la requête
             if ($start_date = $request->input('start_date')) {
-                $query->whereDate('start_datetime', '=', $start_date);
+                $events->whereDate('start_datetime', '=', $start_date);
             }
 
             // Vérification de s'il y'a une date de fin et application de la requête
             if ($end_date = $request->input('end_date')) {
-                $query->whereDate('end_datetime', '=', $end_date);
+                $events->whereDate('end_datetime', '=', $end_date);
             }
 
             // Vérification de s'il y a une adresse et application de la requête
             if ($address = $request->input('address')) {
-                $query->whereRaw('LOWER(address) LIKE ?', ['%' . strtolower($address) . '%']);
+                $events->whereRaw('LOWER(address) LIKE ?', ['%' . strtolower($address) . '%']);
             }
 
             // Retour des événements
             return response()->json([
-                'events' => $query,
+                'events' => $events,
             ], 200);
 
         } catch (\Exception $e) {

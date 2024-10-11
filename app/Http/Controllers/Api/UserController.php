@@ -52,6 +52,138 @@ class UserController extends Controller
         }
     }
 
+    // POST: Modifier un utilisateur
+    public function update(Request $request, $id)
+    {
+        try {
+            $user = User::find($id);
+
+            // Nous faisons déjà la vérification de si l'utilisateur existe ou non dans le middleware UserAccessMiddleware
+
+            //Règles de validation pour l'utilisateurs
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'email' => 'required|string|max:255|email|unique:users,email,' . $id,
+                'password' => 'nullable|string|min:8|confirmed',
+            ], [
+                'name.required' => 'Le nom est requis.',
+                'name.string' => 'Le nom doit être une chaîne de caractères.',
+                'name.max' => 'Le nom ne doit pas dépasser 255 caractères.',
+                'email.required' => 'L\'adresse e-mail est requise.',
+                'email.string' => 'L\'adresse e-mail doit être une chaîne de caractères.',
+                'email.max' => 'L\'adresse e-mail ne doit pas dépasser 255 caractères.',
+                'email.email' => 'Veuillez fournir une adresse e-mail valide.',
+                'email.unique' => 'Cette adresse e-mail est déjà utilisée.',
+                'password.string' => 'Le mot de passe doit être une chaîne de caractères.',
+                'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
+                'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
+            ]);
+
+            // Verification de la validation
+            if ($validator->fails()) {
+                return response()->json([
+                    'errors' => $validator->errors(),
+                ], 401);
+            }
+
+            // Mettre à jour les informations
+            $user->fill($request->only(['name', 'email']));
+
+            if ($request->input('password')) {
+                $user->fill($request->only('password'));
+            }
+
+            // Enregistrer les informations dans la bdd
+            $user->save();
+
+            // Renvoie de l'utilisateur modifié et d'un message
+            return response()->json([
+                'success' => 'L\'utilisateur a bien été modifié',
+                'user' => $user,
+            ], 200);
+
+        } catch (\Exception $e) {
+            // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur
+            Log::error('Erreur innatendue lors de la modification de l\'utilisateur' . $e->getMessage());
+            return response()->json([
+                'errors' => 'Erreur innatendue lors de la modification de l\'utilisateur',
+            ], 500);
+        }
+    }
+
+    // DELETE: Retirer un utilisateur
+    public function destroy(Request $request, $id)
+    {
+        try {
+            // Récupération de l'utilisateur avec l'id
+            $user = User::find($id);
+
+            // Nous faisons déjà la vérification de si l'utilisateur existe ou non dans le middleware UserAccessMiddleware
+
+            // Suppression de tout ses tokens
+            $user->tokens()->delete();
+
+            // Suppression de l'utilisateur
+            $user->delete();
+
+            // Retourner une réponse de succès
+            return response()->json([
+                'success' => 'Utilisateur supprimé avec succès',
+            ], 200);
+
+        } catch (\Exception $e) {
+            // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur
+            Log::error('Erreur innatendue lors de la suppression de l\'utilisateur' . $e->getMessage());
+            return response()->json([
+                'errors' => 'Erreur innatendue lors de la suppression de l\'utilisateur',
+            ], 500);
+        }
+    }
+
+    // PUT: Mettre un utilisateur administrateur
+    /***
+     * Le rôle de cette fonction est de permettre à un utilisateur qui possède une clé précise de passer administrateur
+     * la clé est: 4f3a1b2c5d6e7f8a9b0c1d2e3f4a5b6c
+     ***/
+    public function makeAdmin(Request $request, $key, $id = null)
+    {
+        try {
+            // Si un ID d'utilisateur est fourni, on le récupère, sinon on utilise l'utilisateur actuel
+            $targetUser = $id ? User::find($id) : $request->user();
+
+            // Vérification de la clé
+            if ($key == "4f3a1b2c5d6e7f8a9b0c1d2e3f4a5b6c") {
+                if ($targetUser) {
+                    // Passage de l'utilisateur en administrateur
+                    $targetUser->role = User::ROLE_ADMIN;
+                    $targetUser->save();
+
+                    // Envoie d'un message de confirmation
+                    return response()->json([
+                        'success' => 'L\'utilisateur est désormais administrateur',
+                    ], 200);
+                } else {
+                    // Envoie d'une erreur si l'utilisateur cible n'existe pas
+                    return response()->json([
+                        'errors' => 'Utilisateur non trouvé',
+                    ], 404);
+                }
+            } else {
+                // Envoie d'une erreur
+                return response()->json([
+                    'errors' => 'La clé fournie n\'est pas bonne',
+                ], 401);
+            }
+
+        } catch (\Exception $e) {
+            // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur
+            Log::error('Erreur inattendue lors du passage de l\'utilisateur en administrateur' . $e->getMessage());
+            return response()->json([
+                'errors' => 'Erreur inattendue lors du passage de l\'utilisateur en administrateur',
+            ], 500);
+        }
+    }
+
     // GET: Récuperer les réservations d'un utilisateur
     public function getReservations(Request $request)
     {
@@ -72,8 +204,8 @@ class UserController extends Controller
 
             // Envoie de la réponse
             return response()->json([
-                "success" => "Voici vos réservations",
-                "reservations" => $reservations,
+                'success' => 'Voici vos réservations',
+                'reservations' => $reservations,
             ], 200);
 
         } catch (\Exception $e) {
@@ -150,152 +282,13 @@ class UserController extends Controller
             // Renvoie de l'annulation
             return response()->json([
                 'success' => 'La réservation a été annulée avec succès',
-                'reservation' => $reservation
+                'reservation' => $reservation,
             ], 200);
         } catch (\Exception $e) {
             // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur
             Log::error('Erreur inattendue lors de l\'annulation de la réservation : ' . $e->getMessage());
             return response()->json([
                 'errors' => 'Erreur inattendue lors de l\'annulation de la réservation',
-            ], 500);
-        }
-    }
-
-    // POST: Modifier un utilisateur
-    public function update(Request $request, $id)
-    {
-        try {
-            $user = User::find($id);
-
-            // Nous faisons déjà la vérification de si l'utilisateur existe ou non dans le middleware UserAccessMiddleware
-
-            //Règles de validation pour l'utilisateurs
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|max:255|email|unique:users,email,' . $id,
-                'password' => 'nullable|string|min:8|confirmed',
-            ], [
-                'name.required' => 'Le nom est requis.',
-                'name.string' => 'Le nom doit être une chaîne de caractères.',
-                'name.max' => 'Le nom ne doit pas dépasser 255 caractères.',
-                'email.required' => 'L\'adresse e-mail est requise.',
-                'email.string' => 'L\'adresse e-mail doit être une chaîne de caractères.',
-                'email.max' => 'L\'adresse e-mail ne doit pas dépasser 255 caractères.',
-                'email.email' => 'Veuillez fournir une adresse e-mail valide.',
-                'email.unique' => 'Cette adresse e-mail est déjà utilisée.',
-                'password.string' => 'Le mot de passe doit être une chaîne de caractères.',
-                'password.min' => 'Le mot de passe doit contenir au moins 8 caractères.',
-                'password.confirmed' => 'La confirmation du mot de passe ne correspond pas.',
-            ]);
-
-            // Verification de la validation
-            if ($validator->fails()) {
-                return response()->json([
-                    'errors' => $validator->errors(),
-                ], 401);
-            }
-
-            // Mettre à jour les informations
-            $user->fill($request->only(['name', 'email']));
-
-            if ($request->input('password')) {
-                $user->fill($request->only('password'));
-            }
-
-            // Enregistrer les informations dans la bdd
-            $user->save();
-
-            // Renvoie de l'utilisateur modifié et d'un message
-            return response()->json([
-                'success' => 'L\'utilisateur a bien été modifié',
-                'user' => $user,
-            ], 200);
-
-        } catch (\Exception $e) {
-            // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur
-            Log::error('Erreur innatendue lors de la modification de l\'utilisateur' . $e->getMessage());
-            return response()->json([
-                'errors' => 'Erreur innatendue lors de la modification de l\'utilisateur',
-            ], 500);
-        }
-    }
-
-    // PUT: Mettre un utilisateur administrateur
-    /***
-     * Le rôle de cette fonction est de permettre à un utilisateur qui possède une clé précise de passer administrateur
-     * la clé est: 4f3a1b2c5d6e7f8a9b0c1d2e3f4a5b6c
-     ***/
-    public function makeAdmin(Request $request, $key, $id = null)
-    {
-        try {
-            $user = $request->user();
-
-            /***
-             * Aucune vérification d'utilisateur n'est nécessaire ici, car Sanctum vérifie déjà
-             * que l'utilisateur est authentifié et existe.
-             ***/
-
-            // Vérification de la clé
-            if ($key == "4f3a1b2c5d6e7f8a9b0c1d2e3f4a5b6c") {
-                // Si un ID d'utilisateur est fourni, on le récupère, sinon on utilise l'utilisateur actuel
-                $targetUser = $id ? User::find($id) : $user;
-
-                if ($targetUser) {
-                    // Passage de l'utilisateur en administrateur
-                    $targetUser->role = User::ROLE_ADMIN;
-                    $targetUser->save();
-
-                    // Envoie d'un message de confirmation
-                    return response()->json([
-                        'success' => 'L\'utilisateur est désormais administrateur',
-                    ], 200);
-                } else {
-                    // Envoie d'une erreur si l'utilisateur cible n'existe pas
-                    return response()->json([
-                        'errors' => 'Utilisateur non trouvé',
-                    ], 404);
-                }
-            } else {
-                // Envoie d'une erreur
-                return response()->json([
-                    'errors' => 'La clé fournie n\'est pas bonne',
-                ], 401);
-            }
-
-        } catch (\Exception $e) {
-            // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur
-            Log::error('Erreur inattendue lors du passage de l\'utilisateur en administrateur' . $e->getMessage());
-            return response()->json([
-                'errors' => 'Erreur inattendue lors du passage de l\'utilisateur en administrateur',
-            ], 500);
-        }
-    }
-
-    // DELETE: Retirer un utilisateur
-    public function destroy(Request $request, $id)
-    {
-        try {
-            // Récupération de l'utilisateur avec l'id
-            $user = User::find($id);
-
-            // Nous faisons déjà la vérification de si l'utilisateur existe ou non dans le middleware UserAccessMiddleware
-
-            // Suppression de tout ses tokens
-            $user->tokens()->delete();
-
-            // Suppression de l'utilisateur
-            $user->delete();
-
-            // Retourner une réponse de succès
-            return response()->json([
-                'success' => 'Utilisateur supprimé avec succès',
-            ], 200);
-
-        } catch (\Exception $e) {
-            // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur
-            Log::error('Erreur innatendue lors de la suppression de l\'utilisateur' . $e->getMessage());
-            return response()->json([
-                'errors' => 'Erreur innatendue lors de la suppression de l\'utilisateur',
             ], 500);
         }
     }
