@@ -6,7 +6,6 @@
 
 ## Authentification
 ### Connexion
-<h2><u>Envoi de la requête :</u></h2>
 **Méthode :** `POST` <br>
 **URL :** `http://127.0.0.1:8000/api/login`<br>
 **Corps de la requête :**
@@ -16,8 +15,7 @@
     "password": "votre_mot_de_passe"
 }
 ```
-<h2><u>Envoi de la requête :</u></h2>
-**Code de statut :** 200 <br>
+**Code de statut attendue:** 200 <br>
 **Corps de la réponse :**
 ```
 {
