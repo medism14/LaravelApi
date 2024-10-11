@@ -8,17 +8,21 @@
 ### Connexion
 - Envoi de la requête :</br>
 **Méthode :** POST
-**URL :** `http://127.0.0.1:8000/api/login`< 
+**URL :** `http://127.0.0.1:8000/api/login`<
 **Corps de la requête :**
-```{
+```
+{
     "email": "user@example.com",
     "password": "votre_mot_de_passe"
-}```
+}
+```
 - Réponse attendue :</br>
 **Code de statut :** 200 
 **Corps de la réponse :**
-```{
+```
+{
     "user": {...},
     "token": "votre_token",
     "token_type": "Bearer"
-}```
+}
+```
