@@ -6,7 +6,7 @@
 
 ## Authentification
 ### Inscription
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `POST` <br>
 **URL :** `http://127.0.0.1:8000/api/register`<br>
 **Corps de la requête :**
@@ -29,7 +29,7 @@
 ```
 
 ### Connexion
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `POST` <br>
 **URL :** `http://127.0.0.1:8000/api/login`<br>
 **Corps de la requête :**
@@ -50,7 +50,7 @@
 ```
 
 ### Déconnexion
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `POST` <br>
 **URL :** `http://127.0.0.1:8000/api/logout`<br>
 **En-tête de la requête :**
@@ -70,7 +70,7 @@
 ## Utilisateurs
 
 ### Obtenir tout les utilisateurs
-**Accessibilité :** `Administrateurs uniquement`
+**Accessibilité :** `Administrateurs uniquement`<br>
 **Méthode :** `GET` <br>
 **URL :** `http://127.0.0.1:8000/api/users`<br>
 **En-tête de la requête :**
@@ -88,7 +88,7 @@
 ```
 
 ### Obtenir un seul utilisateur
-**Accessibilité :** `L'utilisateur pour lui-même et les administrateurs pour tout le monde`
+**Accessibilité :** `L'utilisateur pour lui-même et les administrateurs pour tout le monde`<br>
 **Méthode :** `GET` <br>
 **URL :** `http://127.0.0.1:8000/api/users/{id}`<br>
 **En-tête de la requête :**
@@ -106,7 +106,7 @@
 ```
 
 ### Modifier un utilisateur
-**Accessibilité :** `L'utilisateur pour lui-même et les administrateurs pour tout le monde`
+**Accessibilité :** `L'utilisateur pour lui-même et les administrateurs pour tout le monde`<br>
 **Méthode :** `PUT` <br>
 **URL :** `http://127.0.0.1:8000/api/users/{id}`<br>
 **En-tête de la requête :**
@@ -134,7 +134,7 @@
 ```
 
 ### Retirer un utilisateur
-**Accessibilité :** `L'utilisateur pour lui-même et les administrateurs pour tout le monde`
+**Accessibilité :** `L'utilisateur pour lui-même et les administrateurs pour tout le monde`<br>
 **Méthode :** `DELETE` <br>
 **URL :** `http://127.0.0.1:8000/api/users/{id}`<br>
 **En-tête de la requête :**
@@ -152,7 +152,7 @@
 ```
 
 ### Passage d'un utilisateur en administrateur
-**Accessibilité :** `L'utilisateur pour lui-même et les administrateurs pour tout le monde`
+**Accessibilité :** `L'utilisateur pour lui-même et les administrateurs pour tout le monde`<br>
 **Méthode :** `PUT` <br>
 **URL :** `http://127.0.0.1:8000/api/makeAdmin/{key}/{id?}`<br>
 **En-tête de la requête :**
@@ -170,7 +170,7 @@
 ```
 
 ### Récupérer des reservations d'un l'utilisateur
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `GET` <br>
 **URL :** `http://127.0.0.1:8000/api/myReservations`<br>
 **En-tête de la requête :**
@@ -189,7 +189,7 @@
 ```
 
 ### Annuler une réservation
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `PUT` <br>
 **URL :** `http://127.0.0.1:8000/api/cancelReservation/{reservation_id}`<br>
 **En-tête de la requête :**
@@ -209,7 +209,7 @@
 
 ## Categorie
 ### Récupérer toutes les catégories
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `GET` <br>
 **URL :** `http://127.0.0.1:8000/api/categories`<br>
 **En-tête de la requête :**
@@ -227,7 +227,7 @@
 ```
 
 ### Création d'une catégorie
-**Accessibilité :** `Administrateurs uniquement`
+**Accessibilité :** `Administrateurs uniquement`<br>
 **Méthode :** `POST` <br>
 **URL :** `http://127.0.0.1:8000/api/categories`<br>
 **En-tête de la requête :**
@@ -252,7 +252,7 @@
 ```
 
 ### Récupérer une catégorie
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `GET` <br>
 **URL :** `http://127.0.0.1:8000/api/categories/{id}`<br>
 **En-tête de la requête :**
@@ -271,7 +271,7 @@
 ```
 
 ### Modifier une catégorie
-**Accessibilité :** `Administrateurs uniquement`
+**Accessibilité :** `Administrateurs uniquement`<br>
 **Méthode :** `PUT` <br>
 **URL :** `http://127.0.0.1:8000/api/categories/{id}`<br>
 **En-tête de la requête :**
@@ -296,7 +296,7 @@
 ```
 
 ### Retirer une catégorie
-**Accessibilité :** `Administrateurs uniquement`
+**Accessibilité :** `Administrateurs uniquement`<br>
 **Méthode :** `DELETE` <br>
 **URL :** `http://127.0.0.1:8000/api/categories/{id}`<br>
 **En-tête de la requête :**
@@ -315,7 +315,7 @@
 
 ## Événement
 ### Récupérer tout les événements
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `GET` <br>
 **URL :** `http://127.0.0.1:8000/api/events`<br>
 **En-tête de la requête :**
@@ -333,7 +333,7 @@
 ```
 
 ### Création d'un événement
-**Accessibilité :** `Administrateurs uniquement`
+**Accessibilité :** `Administrateurs uniquement`<br>
 **Méthode :** `POST` <br>
 **URL :** `http://127.0.0.1:8000/api/events`<br>
 **En-tête de la requête :**
@@ -364,7 +364,7 @@
 ```
 
 ### Récupérer un événement
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `GET` <br>
 **URL :** `http://127.0.0.1:8000/api/events/{id}`<br>
 **En-tête de la requête :**
@@ -383,7 +383,7 @@
 ```
 
 ### Modifier un événement
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `PUT` <br>
 **URL :** `http://127.0.0.1:8000/api/events/{id}`<br>
 **En-tête de la requête :**
@@ -414,7 +414,7 @@
 ```
 
 ### Retirer un événement
-**Accessibilité :** `Administrateurs uniquement`
+**Accessibilité :** `Administrateurs uniquement`<br>
 **Méthode :** `DELETE` <br>
 **URL :** `http://127.0.0.1:8000/api/events/{id}`<br>
 **En-tête de la requête :**
@@ -433,7 +433,7 @@
 
 ## Réservation
 ### Récupérer toutes les réservations
-**Accessibilité :** `Administrateurs uniquement`
+**Accessibilité :** `Administrateurs uniquement`<br>
 **Méthode :** `GET` <br>
 **URL :** `http://127.0.0.1:8000/api/reservations`<br>
 **En-tête de la requête :**
@@ -451,7 +451,7 @@
 ```
 
 ### Création d'une réservation
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `POST` <br>
 **URL :** `http://127.0.0.1:8000/api/reservations`<br>
 **En-tête de la requête :**
@@ -479,7 +479,7 @@
 ```
 
 ### Récupérer une réservation
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `GET` <br>
 **URL :** `http://127.0.0.1:8000/api/reservations/{id}`<br>
 **En-tête de la requête :**
@@ -498,7 +498,7 @@
 ```
 
 ### Modifier une réservation
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `PUT` <br>
 **URL :** `http://127.0.0.1:8000/api/reservations/{id}`<br>
 **En-tête de la requête :**
@@ -526,7 +526,7 @@
 ```
 
 ### Retirer une réservation
-**Accessibilité :** `Tout les utilisateurs`
+**Accessibilité :** `Tout les utilisateurs`<br>
 **Méthode :** `DELETE` <br>
 **URL :** `http://127.0.0.1:8000/api/reservations/{id}`<br>
 **En-tête de la requête :**
