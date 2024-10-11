@@ -19,7 +19,7 @@ class AdminMiddleware
 
         if (!$user || !$user->isAdmin()) {
             return response()->json([
-                'message' => 'Vous n\'avez pas le droit nécessaires pour effectuer cette action.',
+                'errors' => 'Vous n\'avez pas le droit nécessaires pour effectuer cette action.',
             ], 403);
         }
 

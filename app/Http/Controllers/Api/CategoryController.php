@@ -58,7 +58,7 @@ class CategoryController extends Controller
 
             // Renvoie de la réponse
             return response()->json([
-                'message' => 'La catégorie a bien été créée',
+                'success' => 'La catégorie a bien été créée',
                 'category' => $category,
             ], 200);
         } catch (\Exception $e) {
@@ -86,7 +86,7 @@ class CategoryController extends Controller
 
             // Retourner la réponse
             return response()->json([
-                'message' => 'Catégorie récupérée avec succès',
+                'success' => 'Catégorie récupérée avec succès',
                 'category' => $category,
             ], 200);
         } catch (\Exception $e) {
@@ -133,7 +133,7 @@ class CategoryController extends Controller
             $category->save();
 
             return response()->json([
-                'message' => 'La catégorie a bien été mise à jour',
+                'success' => 'La catégorie a bien été mise à jour',
                 'category' => $category,
             ], 200);
         } catch (\Exception $e) {
@@ -164,7 +164,7 @@ class CategoryController extends Controller
 
             // Retourner une réponse de succès
             return response()->json([
-                'message' => 'Catégorie supprimée avec succès',
+                'success' => 'Catégorie supprimée avec succès',
             ], 200);
         } catch (\Exception $e) {
             // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur

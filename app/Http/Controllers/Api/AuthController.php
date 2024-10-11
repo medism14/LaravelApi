@@ -67,7 +67,7 @@ class AuthController extends Controller
             // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur
             Log::error('Erreur innatendue lors de l\'enregistrement : ' . $e->getMessage());
             return response()->json([
-                'message' => 'Une erreur innatendue est survenue lors de la création de votre compte, veuillez réessayez plus tard',
+                'errors' => 'Une erreur innatendue est survenue lors de la création de votre compte, veuillez réessayez plus tard',
             ], 500);
         }
     }
@@ -137,7 +137,7 @@ class AuthController extends Controller
 
             // Renvoie d'un message de confirmation de déconnexion
             return response()->json([
-                'message' => 'Déconnexion réussie',
+                'success' => 'Déconnexion réussie',
             ], 200);
 
         } catch (\Exception $e) {

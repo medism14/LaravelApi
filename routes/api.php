@@ -9,7 +9,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Http\Middleware\UserAccessMiddleware;
 use Illuminate\Support\Facades\Route;
 
-// Authentifications
+// Pour enregistre l'utilisateur
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
@@ -17,9 +17,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     // Routes pour les utilisateurs
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::put('/users/makeAdmin/{key}', [UserController::class, 'makeAdmin']);
     Route::get('/myReservations', [UserController::class, 'getReservations']);
-    Route::get('/cancelReservation/{reservation_id}', [UserController::class, 'getReservations']);
+    Route::put('/cancelReservation/{reservation_id}', [UserController::class, 'getReservations']);
 
     // Routes pour les catégories
     Route::get('/categories', [CategoryController::class, 'index']);
@@ -42,6 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/users/{id}', [UserController::class, 'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
         Route::get('/users/{id}', [UserController::class, 'show']);
+        Route::put('/users/makeAdmin/{key}/{id?}', [UserController::class, 'makeAdmin']);
     });
 
     // Middleware d'administrateur appliqué à ce groupe

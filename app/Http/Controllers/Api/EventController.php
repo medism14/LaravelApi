@@ -40,7 +40,7 @@ class EventController extends Controller
 
             // Retour des événements
             return response()->json([
-                'events' => $events,
+                'events' => $query,
             ], 200);
 
         } catch (\Exception $e) {
@@ -60,10 +60,11 @@ class EventController extends Controller
             $validator = Validator::make($request->all(), [
                 'title' => 'required|string|max:150',
                 'description' => 'required|string|max:255',
-                'datetime' => 'required|string|max:255',
+                'start_datetime' => 'required|date',
+                'end_datetime' => 'required|date|after:start_datetime',
                 'address' => 'required|string|max:255',
                 'capacity' => 'required|integer|min:1',
-                'categorie_id' => 'required|integer|exists:categories,id',
+                'category_id' => 'required|integer|exists:categories,id',
             ], [
                 'title.required' => 'Le titre est requis.',
                 'title.string' => 'Le titre doit être une chaîne de caractères.',
@@ -71,17 +72,20 @@ class EventController extends Controller
                 'description.required' => 'La description est requise.',
                 'description.string' => 'La description doit être une chaîne de caractères.',
                 'description.max' => 'La description ne peut pas dépasser 255 caractères.',
-                'datetime.required' => 'La date et l\'heure sont requises.',
-                'datetime.string' => 'La date et l\'heure doivent être une chaîne de caractères.',
+                'start_datetime.required' => 'La date de début est requise.',
+                'start_datetime.date' => 'La date de début doit être une date valide.',
+                'end_datetime.required' => 'La date de fin est requise.',
+                'end_datetime.date' => 'La date de fin doit être une date valide.',
+                'end_datetime.after' => 'La date de fin doit être après la date de début.',
                 'address.required' => 'L\'adresse est requise.',
                 'address.string' => 'L\'adresse doit être une chaîne de caractères.',
                 'address.max' => 'L\'adresse ne peut pas dépasser 255 caractères.',
                 'capacity.required' => 'La capacité est requise.',
                 'capacity.integer' => 'La capacité doit être un nombre entier.',
                 'capacity.min' => 'La capacité doit être au moins 1.',
-                'categorie_id.required' => 'La catégorie est requise.',
-                'categorie_id.integer' => 'L\'ID de la catégorie doit être un nombre entier.',
-                'categorie_id.exists' => 'La catégorie sélectionnée n\'existe pas.',
+                'category_id.required' => 'La catégorie est requise.',
+                'category_id.integer' => 'L\'ID de la catégorie doit être un nombre entier.',
+                'category_id.exists' => 'La catégorie sélectionnée n\'existe pas.',
             ]);
 
             // Vérification de la validation
@@ -100,12 +104,12 @@ class EventController extends Controller
                 'address' => $request->input('address'),
                 'capacity' => $request->input('capacity'),
                 'remainingPlaces' => $request->input('capacity'),
-                'category_id' => $request->input('categorie_id'),
+                'category_id' => $request->input('category_id'),
             ]);
 
             // Renvoie de la réponse
             return response()->json([
-                'message' => 'L\'événement a bien été créé',
+                'success' => 'L\'événement a bien été créé',
                 'event' => $event,
             ], 200);
         } catch (\Exception $e) {
@@ -133,7 +137,7 @@ class EventController extends Controller
 
             // Retourner la réponse
             return response()->json([
-                'message' => 'Événement récupéré avec succès',
+                'success' => 'Événement récupéré avec succès',
                 'event' => $event,
             ], 200);
         } catch (\Exception $e) {
@@ -163,28 +167,32 @@ class EventController extends Controller
             $validator = Validator::make($request->all(), [
                 'title' => 'required|string|max:150',
                 'description' => 'required|string|max:255',
-                'datetime' => 'required|string|max:255',
+                'start_datetime' => 'required|date',
+                'end_datetime' => 'required|date|after:start_datetime',
                 'address' => 'required|string|max:255',
                 'capacity' => 'required|integer|min:1',
-                'categorie_id' => 'required|integer|exists:categories,id',
+                'category_id' => 'required|integer|exists:categories,id',
             ], [
-                'title.required' => 'Le titre est requis.',
+                'title.required' => 'Le titre est obligatoire.',
                 'title.string' => 'Le titre doit être une chaîne de caractères.',
                 'title.max' => 'Le titre ne peut pas dépasser 150 caractères.',
-                'description.required' => 'La description est requise.',
+                'description.required' => 'La description est obligatoire.',
                 'description.string' => 'La description doit être une chaîne de caractères.',
                 'description.max' => 'La description ne peut pas dépasser 255 caractères.',
-                'datetime.required' => 'La date et l\'heure sont requises.',
-                'datetime.string' => 'La date et l\'heure doivent être une chaîne de caractères.',
-                'address.required' => 'L\'adresse est requise.',
+                'start_datetime.required' => 'La date et l\'heure de début sont obligatoires.',
+                'start_datetime.date' => 'La date et l\'heure de début doivent être une date valide.',
+                'end_datetime.required' => 'La date et l\'heure de fin sont obligatoires.',
+                'end_datetime.date' => 'La date et l\'heure de fin doivent être une date valide.',
+                'end_datetime.after' => 'La date et l\'heure de fin doivent être postérieures à la date et l\'heure de début.',
+                'address.required' => 'L\'adresse est obligatoire.',
                 'address.string' => 'L\'adresse doit être une chaîne de caractères.',
                 'address.max' => 'L\'adresse ne peut pas dépasser 255 caractères.',
-                'capacity.required' => 'La capacité est requise.',
+                'capacity.required' => 'La capacité est obligatoire.',
                 'capacity.integer' => 'La capacité doit être un nombre entier.',
                 'capacity.min' => 'La capacité doit être au moins 1.',
-                'categorie_id.required' => 'La catégorie est requise.',
-                'categorie_id.integer' => 'L\'ID de la catégorie doit être un nombre entier.',
-                'categorie_id.exists' => 'La catégorie sélectionnée n\'existe pas.',
+                'category_id.required' => 'La catégorie est obligatoire.',
+                'category_id.integer' => 'L\'ID de la catégorie doit être un nombre entier.',
+                'category_id.exists' => 'La catégorie sélectionnée n\'existe pas.',
             ]);
 
             // Vérification de la validation
@@ -200,13 +208,13 @@ class EventController extends Controller
                 $event->remainingPlaces = $request->input('capacity');
             } 
 
-            $event->fill($request->only('title', 'description', 'start_datetime', 'end_datetime', 'address', 'capacity', 'categorie_id'));
+            $event->fill($request->only('title', 'description', 'start_datetime', 'end_datetime', 'address', 'capacity', 'category_id'));
 
             // Modifier l'événement et enregistrement
             $event->save();
 
             return response()->json([
-                'message' => 'L\'événement a bien été mis à jour',
+                'success' => 'L\'événement a bien été mis à jour',
                 'event' => $event,
             ], 200);
         } catch (\Exception $e) {
@@ -237,7 +245,7 @@ class EventController extends Controller
 
             // Retourner une réponse de succès
             return response()->json([
-                'message' => 'Événement supprimé avec succès',
+                'success' => 'Événement supprimé avec succès',
             ], 200);
         } catch (\Exception $e) {
             // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur

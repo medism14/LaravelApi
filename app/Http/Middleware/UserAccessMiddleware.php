@@ -21,12 +21,12 @@ class UserAccessMiddleware
         $userRequest = $request->user();
 
         // Récupration de l'utilisateur avec id
-        $targetUser = User::find($userId);
+        $targetUser = $userId ? User::find($userId) : $userRequest;
 
         // Si l'utilisateur qui engagne la requête n'existe pas
         if (!$userRequest) {
             return response()->json([
-                'message' => 'Vous n\'avez pas le droit nécessaires pour effectuer cette action.',
+                'errors' => 'Vous n\'avez pas le droit nécessaires pour effectuer cette action.',
             ], 403);
         }
 
@@ -34,12 +34,12 @@ class UserAccessMiddleware
         if (!$targetUser) {
             if ($userRequest->isAdmin()) {
                 return response()->json([
-                    'message' => 'Cet utilisateur n\'existe pas.',
+                    'errors' => 'Cet utilisateur n\'existe pas.',
                 ], 404);
             }
 
             return response()->json([
-                'message' => 'Vous n\'avez pas le droit nécessaires pour effectuer cette action.',
+                'errors' => 'Vous n\'avez pas le droit nécessaires pour effectuer cette action.',
             ], 403);
         }
 

@@ -18,7 +18,7 @@ class UserController extends Controller
             // Récupération des utilisations et leurs retours
             $users = User::paginate(15);
             return response()->json(
-                ['users' => $users], 
+                ['users' => $users],
                 200);
         } catch (\Exception $e) {
             // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur
@@ -53,20 +53,26 @@ class UserController extends Controller
     }
 
     // GET: Récuperer les réservations d'un utilisateur
-    public function getReservations(Request $request, $id)
+    public function getReservations(Request $request)
     {
         try {
-            // Récupération de l'utilisateur
-            $user = User::find($id);
 
-            // Nous faisons déjà la vérification de si l'utilisateur existe ou non dans le middleware UserAccessMiddleware
+            // Récupération de l'utilisateur
+            $user = $request->user();
+
+            // Vérification de l'existence de l'utilisations
+            if (!$user) {
+                return response()->json([
+                    'errors' => 'Cet utilisateur n\'existe pas.',
+                ], 404);
+            }
 
             // Récupération des reservations
-            $reservations = $user->reservations()->event()->get();
+            $reservations = $user->reservations()->get();
 
             // Envoie de la réponse
             return response()->json([
-                "message" => "Voici vos réservations",
+                "success" => "Voici vos réservations",
                 "reservations" => $reservations,
             ], 200);
 
@@ -93,33 +99,58 @@ class UserController extends Controller
                 ], 404);
             }
 
+            // Vérifier si la réservation n'est pas déjà annulée
+            if ($reservation->status === 'cancelled') {
+                return response()->json([
+                    'errors' => 'Cette réservation est déjà annulée',
+                ], 400);
+            }
+
+            // Modification du statut de la réservation
             $reservation->status = 'cancelled';
+            $reservation->save();
 
             // Modification des places disponibles dans l'événement
-            $disponibleSeat = $reservation->number_of_seat;
             $event = $reservation->event;
-            $event->remainingPlaces += $disponibleSeat;
+            $event->remainingPlaces += $reservation->number_of_seat;
             $event->save();
 
             // Récupération des gens en liste d'attente
-            $reservationsWaiting = Reservation::where('event_id', $event->id)->where('status', 'waiting')->get();
+            $reservationsWaiting = Reservation::where('event_id', $event->id)
+                ->where('status', 'waiting')
+                ->orderBy('created_at', 'asc')
+                ->get();
 
+            // Faire en sorte de remplir les places qui ont été libérés avec les gens en liste d'attente
             foreach ($reservationsWaiting as $waitingReservation) {
-                // Si le nombre de sièges demandés est supérieur aux places restantes, on continue à la prochaine réservation
-                if ($waitingReservation->number_of_seat > $event->remainingPlaces) {
-                    continue;
-                } else {
+                if ($waitingReservation->number_of_seat <= $event->remainingPlaces) {
                     // Mettre à jour le statut de la réservation
                     $waitingReservation->status = "reserved";
                     $waitingReservation->save();
+
+                    // Mettre à jour le statut de l'événement
                     $event->remainingPlaces -= $waitingReservation->number_of_seat;
+                    $event->save();
+                } else if ($event->remainingPlaces > 0) {
+                    // S'il y'a de la place mais que ça n'a pas matché avec le nombre de place de la reservartion
+                    // Mise à jour de la reservation
+                    $waitingReservation->number_of_seat = $event->remainingPlaces;
+                    $waitingReservation->status = 'reserved';
+                    $waitingReservation->save();
+
+                    // Mise à jour de l'événement
+                    $event->remainingPlaces = 0;
+                    $event->save();
+                } else {
+                    // Si rien ne match
+                    break;
                 }
             }
 
             // Renvoie de l'annulation
             return response()->json([
-                'message' => 'La réservation a été annulée avec succès',
-                'reservation' => $reservation,
+                'success' => 'La réservation a été annulée avec succès',
+                'reservation' => $reservation
             ], 200);
         } catch (\Exception $e) {
             // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur
@@ -176,7 +207,7 @@ class UserController extends Controller
 
             // Renvoie de l'utilisateur modifié et d'un message
             return response()->json([
-                'message' => 'L\utilisateur a bien été modifié',
+                'success' => 'L\'utilisateur a bien été modifié',
                 'user' => $user,
             ], 200);
 
@@ -194,7 +225,7 @@ class UserController extends Controller
      * Le rôle de cette fonction est de permettre à un utilisateur qui possède une clé précise de passer administrateur
      * la clé est: 4f3a1b2c5d6e7f8a9b0c1d2e3f4a5b6c
      ***/
-    public function makeAdmin(Request $request, $key)
+    public function makeAdmin(Request $request, $key, $id = null)
     {
         try {
             $user = $request->user();
@@ -204,28 +235,38 @@ class UserController extends Controller
              * que l'utilisateur est authentifié et existe.
              ***/
 
-            //  Verfication de la clé
+            // Vérification de la clé
             if ($key == "4f3a1b2c5d6e7f8a9b0c1d2e3f4a5b6c") {
-                // Passage de l'utilisateur en administrateur
-                $user->role = User::ROLE_ADMIN;
-                $user->save();
+                // Si un ID d'utilisateur est fourni, on le récupère, sinon on utilise l'utilisateur actuel
+                $targetUser = $id ? User::find($id) : $user;
 
-                // Envoie d'un message de confirmation
-                return response()->json([
-                    'message' => 'L\'utilisateur est désormais administrateur',
-                ], 200);
+                if ($targetUser) {
+                    // Passage de l'utilisateur en administrateur
+                    $targetUser->role = User::ROLE_ADMIN;
+                    $targetUser->save();
+
+                    // Envoie d'un message de confirmation
+                    return response()->json([
+                        'success' => 'L\'utilisateur est désormais administrateur',
+                    ], 200);
+                } else {
+                    // Envoie d'une erreur si l'utilisateur cible n'existe pas
+                    return response()->json([
+                        'errors' => 'Utilisateur non trouvé',
+                    ], 404);
+                }
             } else {
                 // Envoie d'une erreur
                 return response()->json([
-                    'errors' => 'La clé fournis n\'est pas bonne',
+                    'errors' => 'La clé fournie n\'est pas bonne',
                 ], 401);
             }
 
         } catch (\Exception $e) {
             // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur
-            Log::error('Erreur innatendue lors du passage de l\'utilisateur en administrateur' . $e->getMessage());
+            Log::error('Erreur inattendue lors du passage de l\'utilisateur en administrateur' . $e->getMessage());
             return response()->json([
-                'errors' => 'Erreur innatendue lors du passage de l\'utilisateur en administrateur',
+                'errors' => 'Erreur inattendue lors du passage de l\'utilisateur en administrateur',
             ], 500);
         }
     }
@@ -247,7 +288,7 @@ class UserController extends Controller
 
             // Retourner une réponse de succès
             return response()->json([
-                'message' => 'Utilisateur supprimé avec succès',
+                'success' => 'Utilisateur supprimé avec succès',
             ], 200);
 
         } catch (\Exception $e) {

@@ -59,13 +59,13 @@ class ReservationController extends Controller
             $today = Carbon::now(); 
 
             // Vérifier si l'événement est fini ou non
-            if ($today > $event->end_date) {
+            if ($today > $event->end_datetime) {
                 return response()->json([
                     'errors' => 'Vous ne pouvez plus réserver dans cet événement car il est fini',
-                ]);
+                ], 401);
             }
 
-            // Voir s'il reste de la place ou pas
+            // Voir s'il reste de la place ou non
             if ($request->input('number_of_seat') > $event->remainingPlaces) {
                 // Création de la réservation en attente
                 $reservation = Reservation::create([
@@ -90,7 +90,7 @@ class ReservationController extends Controller
 
             // Renvoie de la réponse
             return response()->json([
-                'message' => 'La réservation a bien été créée',
+                'success' => 'La réservation a bien été créée',
                 'reservation' => $reservation,
             ], 200);
         } catch (\Exception $e) {
@@ -118,7 +118,7 @@ class ReservationController extends Controller
 
             // Retourner la réponse
             return response()->json([
-                'message' => 'Réservation récupérée avec succès',
+                'success' => 'Réservation récupérée avec succès',
                 'reservation' => $reservation,
             ], 200);
         } catch (\Exception $e) {
@@ -146,15 +146,21 @@ class ReservationController extends Controller
 
             // Validation du formulaire
             $validator = Validator::make($request->all(), [
-                'status' => 'required|string',
+                'status' => 'required|string|in:reserved,cancelled,waiting',
                 'number_of_seat' => 'required|integer|min:1',
                 'user_id' => 'required|exists:users,id',
                 'event_id' => 'required|exists:events,id',
             ], [
                 'status.required' => 'Le statut est requis.',
+                'status.string' => 'Le statut doit être une chaîne de caractères.',
+                'status.in' => 'Le statut doit être l\'un des suivants : reserved, cancelled, waiting.',
                 'number_of_seat.required' => 'Le nombre de sièges est requis.',
+                'number_of_seat.integer' => 'Le nombre de sièges doit être un entier.',
+                'number_of_seat.min' => 'Le nombre de sièges doit être au moins 1.',
                 'user_id.required' => 'L\'ID de l\'utilisateur est requis.',
+                'user_id.exists' => 'L\'ID de l\'utilisateur doit exister.',
                 'event_id.required' => 'L\'ID de l\'événement est requis.',
+                'event_id.exists' => 'L\'ID de l\'événement doit exister.',
             ]);
 
             // Vérification de la validation
@@ -169,7 +175,7 @@ class ReservationController extends Controller
             $reservation->save();
 
             return response()->json([
-                'message' => 'La réservation a bien été mise à jour',
+                'success' => 'La réservation a bien été mise à jour',
                 'reservation' => $reservation,
             ], 200);
         } catch (\Exception $e) {
@@ -200,7 +206,7 @@ class ReservationController extends Controller
 
             // Retourner une réponse de succès
             return response()->json([
-                'message' => 'Réservation supprimée avec succès',
+                'success' => 'Réservation supprimée avec succès',
             ], 200);
         } catch (\Exception $e) {
             // Enregistrer un log d'erreur et envoyer une erreur à l'utilisateur
