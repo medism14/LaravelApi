@@ -16,8 +16,8 @@ class ReservationTest extends TestCase
     // Test de la récupération de tout
     public function test_get_all_reservation(): void
     {
-        // Création de l'utilisateur et du token
-        $user = User::factory()->create();
+        // Création de l'administrateur et du token
+        $user = User::factory()->withAdminRole()->create();
         $token = $user->createToken('auth_token')->plainTextToken;
 
         // Envoi d'une requête pour récupérer toutes les réservations
